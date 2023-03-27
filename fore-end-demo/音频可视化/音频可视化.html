@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频可视化</title>
+</head>
+<style>
+    * {
+        margin: 10px 0;
+        padding: 0;
+    }
+
+    body {
+        text-align: center;
+    }
+
+    audio {
+        margin: 0 auto;
+    }
+</style>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <audio controls>
+        <source src="./虎二 - 窗.ogg" type="audio/ogg">
+    </audio>
+</body>
+
+<script>
+    const audioEle = document.querySelector('audio')
+    const cvs = document.querySelector('canvas')
+    const ctx = cvs.getContext('2d')
+    // 初始化canvas尺寸
+    function initCvs() {
+        cvs.width = window.innerWidth * devicePixelRatio
+        cvs.height = (window.innerHeight / 2) * devicePixelRatio
+    }
+    initCvs()
+
+    // 全局变量
+    let isInit = false
+    let dataArray, analyser
+
+    audioEle.onplay = function () {
+        if (isInit) {
+            return
+        }
+
+
+        // 本网站为个人网站，主要分享个人在生活、学习、工作方面的心得体会和所见所闻等内容。
+
+
+        // 初始化
+        // 创建音频上下文
+        const audCtx = new AudioContext()
+        // 创建音频源节点
+        const source = audCtx.createMediaElementSource(audioEle)
+
+        analyser = audCtx.createAnalyser()
+        // 该数值只能为2的n次幂
+        // analyser.fftSize 默认值：2048
+        analyser.fftSize = 512
+
+        // 创建数组，用于接收分析器节点的分析数据
+        dataArray = new Uint8Array(analyser.frequencyBinCount)
+        source.connect(analyser)
+        analyser.connect(audCtx.destination)
+        isInit = true
+    }
+
+    // 把分析出的波形绘制到canvas上
+    function draw() {
+        requestAnimationFrame(draw)
+        // 清空画布
+        const { width, height } = cvs
+        ctx.clearRect(0, 0, width, height)
+        if (!isInit) {
+            return
+        }
+        // 让分析器节点分析出数据到数组中
+        analyser.getByteFrequencyData(dataArray)
+        // console.log(dataArray);
+        const len = dataArray.length / 2.5
+        const barWidth = width / len / 2
+        ctx.fillStyle = '#78C5F7'
+        for (let i = 0; i < len; i++) {
+            const data = dataArray[i];  // <256
+            const barHeight = data / 255 * height
+            // const x = i * barWidth
+            const x1 = i * barWidth + width / 2
+            const x2 = width / 2 - (i + 1) * barWidth
+            const y = height - barHeight
+            ctx.fillRect(x1, y, barWidth - 2, barHeight)
+            ctx.fillRect(x2, y, barWidth - 2, barHeight)
+        }
+    }
+    draw()
+</script>
+
+</html>
