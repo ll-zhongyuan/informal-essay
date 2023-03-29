@@ -16,17 +16,11 @@
     body {
         text-align: center;
     }
-
-    audio {
-        margin: 0 auto;
-    }
 </style>
 
 <body>
     <canvas id="canvas"></canvas>
-    <audio controls>
-        <source src="./虎二 - 窗.ogg" type="audio/ogg">
-    </audio>
+    <audio src="./讲个笑话吧.ogg" controls></audio>
 </body>
 
 <script>
@@ -36,60 +30,75 @@
     // 初始化canvas尺寸
     function initCvs() {
         cvs.width = window.innerWidth * devicePixelRatio
-        cvs.height = (window.innerHeight / 2) * devicePixelRatio
+        cvs.height = (window.innerHeight / 1.5) * devicePixelRatio
     }
     initCvs()
 
-    // 全局变量
-    let isInit = false
+    // 设置全局变量
+    // 初始化音频状态为false
+    let isInit = false   
     let dataArray, analyser
 
     audioEle.onplay = function () {
+        //判断音频状态
         if (isInit) {
             return
         }
-
 
         // 初始化
         // 创建音频上下文
         const audCtx = new AudioContext()
         // 创建音频源节点
         const source = audCtx.createMediaElementSource(audioEle)
-
+        // 创建分析器节点
         analyser = audCtx.createAnalyser()
-        // 该数值只能为2的n次幂
-        // analyser.fftSize 默认值：2048
+        // 样本的窗口大小 analyser.fftSize 默认值：2048,该数值只能为2的n次幂
         analyser.fftSize = 512
 
         // 创建数组，用于接收分析器节点的分析数据
+        // Uint8Array 类型化数组
         dataArray = new Uint8Array(analyser.frequencyBinCount)
+
+        // 连接音频源节点与分析器节点
         source.connect(analyser)
+        // 分析器节点连接到输出设备
         analyser.connect(audCtx.destination)
         isInit = true
     }
 
-    // 把分析出的波形绘制到canvas上
+    // 把分析出的波形不断的绘制到canvas上
     function draw() {
         requestAnimationFrame(draw)
         // 清空画布
         const { width, height } = cvs
         ctx.clearRect(0, 0, width, height)
+
+        // 判断音频是否初始化
         if (!isInit) {
             return
         }
         // 让分析器节点分析出数据到数组中
         analyser.getByteFrequencyData(dataArray)
         // console.log(dataArray);
+
+        // 获取到数组长度   /2.5放大前半部分图形
         const len = dataArray.length / 2.5
+        // 设置柱状条宽度  /2获得对称图形宽度
         const barWidth = width / len / 2
-        ctx.fillStyle = '#78C5F7'
+        ctx.fillStyle = '#e15252'
+
+        // 循环数据进行绘制
         for (let i = 0; i < len; i++) {
             const data = dataArray[i];  // <256
+            // 设置柱状条高度
             const barHeight = data / 255 * height
             // const x = i * barWidth
+            // 计算横坐标
             const x1 = i * barWidth + width / 2
             const x2 = width / 2 - (i + 1) * barWidth
+            // 计算纵坐标
             const y = height - barHeight
+            // 绘制图形 宽度-2 拉开柱状条间距
             ctx.fillRect(x1, y, barWidth - 2, barHeight)
             ctx.fillRect(x2, y, barWidth - 2, barHeight)
         }
