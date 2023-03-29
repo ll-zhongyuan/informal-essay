@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,28 +8,32 @@
     <title>文字智能适应背景</title>
 </head>
 <style>
-    .banner{
+    .banner {
         width: 600px;
         height: 300px;
         display: flex;
         cursor: pointer;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(60deg,#000,#000 50%,#fff 50%);
+        background: linear-gradient(60deg, #000, #000 50%, #fff 50%);
     }
-    .title{
+
+    .title {
         color: #fff;
         font-size: 3em;
         transition: 0.5s;
         mix-blend-mode: difference;
     }
-    .banner:hover .title{
+
+    .banner:hover .title {
         transform: translateX(-100px);
     }
 </style>
+
 <body>
     <div class="banner">
         <h1 class="title">遇事不决 可问春风</h1>
     </div>
 </body>
+
 </html>
