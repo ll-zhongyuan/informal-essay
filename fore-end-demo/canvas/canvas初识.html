@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: black;
+        padding: 20px;
+    }
+</style>
+
+<body>
+    <canvas></canvas>
+</body>
+
+<script>
+    // 获取dom元素
+    const cvs = document.querySelector('canvas')
+    const ctx = cvs.getContext('2d')
+
+    function init(params) {
+        // 初始化画布
+        cvs.width = window.innerWidth - 50
+        cvs.height = window.innerHeight - 50
+        // cvs.width = 400 * devicePixelRatio    
+        // cvs.height = 400 * devicePixelRatio
+    }
+    init()
+
+    // 画直线
+    // ctx.beginPath()  // 清空子路径列表开始一个新路径
+    // ctx.moveTo(100, 50)  // 将一个新的子路径的起始点移动到 (x，y) 坐标
+    // ctx.lineTo(200, 100)  // 使用直线连接子路径的终点到 x，y 坐标
+    // ctx.lineTo(300, 300)
+
+    // ctx.closePath()   // 关闭路径
+    // ctx.strokeStyle = '#fff'  // 设置路线样式
+
+    // // 画出
+    // ctx.stroke()   // 描边 
+    // // ctx.fill() // 填充
+
+
+    // ctx.beginPath()
+    // ctx.arc(100, 50, 5, 2 * Math.PI)  // 绘制圆弧路径
+    // ctx.fillStyle='#fff' // 设置填充样式
+    // ctx.fill()
+
+
+    // 代码封装
+
+    // 获取 min , max 范围内的随机整数
+    function getRandom(min, max) {
+        return Math.floor(Math.random() * (max + 1 - min) + min)
+    }
+    class Point {
+        constructor() {
+            this.r = 6   //设置弧形半径
+            this.x = getRandom(0, cvs.width - this.r / 2)  //设置横坐标
+            this.y = getRandom(0, cvs.height - this.r / 2) //设置纵坐标
+            this.xSpeed = getRandom(-50, 50)    // 设置横向速度(随机)
+            this.ySpeed = getRandom(-50, 50)    // 设置纵向速度(随机)
+            this.lastDrawTime = null    // 记录上次作画的时间
+        }
+        draw() {
+            // 更新坐标
+            if (this.lastDrawTime) {
+                // 计算新的坐标
+                const duration = (Date.now() - this.lastDrawTime) / 1000
+                // 获取坐标距离
+                const xDis = this.xSpeed * duration
+                const yDis = this.ySpeed * duration
+
+                // 计算新的横纵坐标
+                let x = this.x + xDis
+                let y = this.y + yDis
+                if (x > cvs.width - this.r / 2) {
+                    x = cvs.width - this.r / 2
+                    this.xSpeed = - this.xSpeed
+                }
+                else if (x < 0) {
+                    x = 0
+                    this.xSpeed = - this.xSpeed
+                }
+                if (y > cvs.height - this.r / 2) {
+                    y = cvs.height - this.r / 2
+                    this.ySpeed = - this.ySpeed
+                }
+                else if (y < 0) {
+                    y = 0
+                    this.ySpeed = - this.ySpeed
+                }
+                this.x = x
+                this.y = y
+            }
+            ctx.beginPath()
+            ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI)  // 绘制圆弧路径
+            ctx.fillStyle = '#fff'// 设置填充样式
+            ctx.fill()
+            this.lastDrawTime = Date.now()  // 记录作画时间
+        }
+    }
+
+    // 封装图形构造函数
+    class Graph {
+        constructor(pointNumber = 30, maxDis = 300) {  //设置生成数量和最大直线距离
+            this.points = new Array(pointNumber).fill(0).map(() => new Point())
+            this.maxDis = maxDis
+        }
+        draw() {
+            // console.log(this.points);
+            requestAnimationFrame(() => {   // 每次渲染重新执行draw()方法
+                this.draw()
+            })
+            ctx.clearRect(0, 0, cvs.width, cvs.height)  // 清空画布
+            for (let i = 0; i < this.points.length; i++) {
+                const p1 = this.points[i]
+                p1.draw()
+                for (let j = i + 1; j < this.points.length; j++) {
+                    const p2 = this.points[j]
+                    const d = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)  //开根号赋值两点之间的直线距离
+                    if (d > this.maxDis) {  //判断两点之间直线距离是否超过设置值
+                        continue
+                    }
+                    ctx.beginPath()
+                    ctx.moveTo(p1.x, p1.y)
+                    ctx.lineTo(p2.x, p2.y)
+                    ctx.closePath()
+                    ctx.strokeStyle = `rgba(200,200,200,${1 - d / this.maxDis})`
+                    ctx.stroke()
+                }
+            }
+        }
+    }
+    const g = new Graph()
+    g.draw()
+    // const p1 = new Point()
+    // const p2 = new Point()
+    // p1.draw()
+    // p2.draw()
+</script>
+
+</html>
