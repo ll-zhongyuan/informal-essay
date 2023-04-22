@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .preview{
+        max-width: 500px;
+        max-height: 500px;
+    }
+</style>
+
+<body>
+    <input type="file">
+    <img class="preview" src="" alt="">
+    <button>生成截图后的File对象</button>
+
+    <script>
+        const inpFile = document.querySelector('input[type="file"]')
+        const img = document.querySelector('.preview')
+        const btn = document.querySelector('button')
+
+        inpFile.onchange = e => {
+            console.log(e,e.target);
+            const file = e.target.files[0]
+            const reader = new FileReader()
+            reader.onload = e => {
+                console.log(e.target.result);
+                img.src = e.target.result
+                // 实现裁剪
+                // ...
+            }
+            reader.readAsDataURL(file)
+        }
+
+        btn.onclick = () => {
+            // 模拟裁剪结果
+            const cutInfo = {
+                x: 500,  // 原图的坐标
+                y: 500,
+                cutWidth: 300,// 原图的裁剪尺寸
+                cutHeight: 300,
+                width: 200, // 裁剪完缩放之后的尺寸
+                height: 200
+            }
+            // 绘制 canvas 查看效果
+            const canvas = document.createElement('canvas')
+            canvas.width = cutInfo.width
+            canvas.height = cutInfo.height
+
+            const ctx = canvas.getContext('2d')
+
+            ctx.drawImage(
+                img,                                    // 要画的图片
+                cutInfo.x, cutInfo.y,                   //相对于原图裁剪的横纵坐标
+                cutInfo.cutWidth, cutInfo.cutHeight,    //裁剪区域的大小
+                0, 0,                                   //画到canvas的左上角
+                cutInfo.width, cutInfo.height           //画的尺寸
+            )
+            canvas.toBlob((blob) => {
+                const file = new File([blob], "裁剪后文件", {
+                    type: 'image/jpeg' // 文件类型
+                })
+                console.log(file);
+
+                // 调用文件上传接口 ，将file 上传到服务器
+                // ...
+            }, 'image/jpeg')
+            // 绘制 canvas
+            document.body.appendChild(canvas)
+        }
+    </script>
+</body>
+
+</html>
