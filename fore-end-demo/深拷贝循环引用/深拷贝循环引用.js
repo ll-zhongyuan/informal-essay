@@ -7,3 +7,6 @@ function deepClone(obj) {
         }
     })
 }
+var obj = { a: 1, b: 2 }
+obj.c = obj
+deepClone(obj).then(o => console.log(o))
