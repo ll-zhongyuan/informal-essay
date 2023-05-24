@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <video src="test.mp4" autoplay></video>
+        <div class="modal">
+            <!-- 方案一 -->
+            <button class="play">开始播放</button>
+            <!-- 方案二 -->
+            <!-- <button class="play">打开声音</button> -->
+        </div>
+
+    </div>
+    <script>
+        // 方案一：互动后播放
+        const vdo = document.querySelector('video');
+        const modal = document.querySelector('modal');
+        const btn = document.querySelector('btn');
+        async function palay() {
+            try {
+                await vdo.play();
+                modal.style.display = 'none';
+                btn.removeEventListener('click', play);
+            } catch (err) {
+                modal.style.display = 'flex';
+                btn.addEventListener('click', play);
+            }
+        }
+        play()
+        
+
+        // 方案二：互动后出声
+        // const vdo = document.querySelector('video');
+        // const modal = document.querySelector('modal');
+        // const btn = document.querySelector('btn');
+        // function play(){
+        //     vdo.muted = true ;  //静音
+        //     vdo.play();
+        //     const ctx = new AudioContext();
+        //     const canAutoPlay = ctx.state === 'running';
+        //     ctx.close();
+        //     if(canAutoPlay){
+        //         vdo.muted = false;
+        //         modal.style.display = 'none';
+        //         btn.removeEventListener('click',play);
+        //     }else{
+        //         modal.style.display = 'flex';
+        //         btn.addEventListener('click',play);
+        //     }
+        // }
+        // play()
+    </script>
+</body>
+
+</html>
